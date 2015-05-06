@@ -11,7 +11,7 @@ Setup
 2. /usr/local/bin/check_nvidiasmi.py -h::
 
 		usage: check_nvidiasmi.py [-h] [-w RANGE] [-c RANGE] [-W RANGE] [-C RANGE]
-		                          [-t RANGE] [-T RANGE] [-v]
+		                          [-t RANGE] [-T RANGE] [-d DEVICE] [-v]
 
 		Nagios plugin to check Nvidia GPU status using nvidia-smi
 		
@@ -29,6 +29,8 @@ Setup
 		                        warning if threshold is outside RANGE
 		  -T RANGE, --gputemp_critical RANGE
 		                        critical if threshold is outside RANGE
+		  -d DEVICE, --device DEVICE
+		                        Device ID (starting from 0)
 		  -v, --verbose         increase verbosity (use up to 3 times)
 
 Releases
