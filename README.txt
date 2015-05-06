@@ -35,6 +35,7 @@ Setup
 
 Releases
 ========
+0.4.0 - May 06, 2015: Specify device to check, and added check for temperature; thanks @gslongo!
 0.2.0 - Jan 16, 2013: Initial release
 
 Develop

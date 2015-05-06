@@ -3,7 +3,7 @@
 from distutils.core import setup
 
 setup(name='nagios-nvidia-smi-plugin',
-        version='0.2.0',
+        version='0.4.0',
         author='William Hutson',
         author_email='wilrnh@gmail.com',
         license="MIT",
