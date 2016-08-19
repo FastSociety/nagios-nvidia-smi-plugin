@@ -13,6 +13,10 @@ class Utilization(nagiosplugin.Resource):
         self.nvidia_smi_xml_root = xml.etree.ElementTree.fromstring(nvidia_smi_proc_out)
 
     def probe(self):
+        if hasattr(self.nvidia_smi_xml_root, 'iter'):
+            nvidia_iter = self.nvidia_smi_xml_root.iter('gpu')
+        else:
+            nvidia_iter = self.nvidia_smi_xml_root.getiterator('gpu')
         for gpu in self.nvidia_smi_xml_root.iter('gpu'):
             utilization = gpu.find('utilization')
             gpuUtilization = float(utilization.find('gpu_util').text.strip(' %'))
