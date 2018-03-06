@@ -10,6 +10,7 @@ class Utilization(nagiosplugin.Resource):
         nvidia_smi_proc_out, nvidia_smi_proc_err = nvidia_smi_proc.communicate()
         if nvidia_smi_proc.returncode > 0:
             raise Exception(nvidia_smi_proc_err)
+        self.fb_memory = args.memory
         self.nvidia_smi_xml_root = xml.etree.ElementTree.fromstring(nvidia_smi_proc_out)
 
     def probe(self):
@@ -17,10 +18,15 @@ class Utilization(nagiosplugin.Resource):
             utilization = gpu.find('utilization')
             gpuUtilization = float(utilization.find('gpu_util').text.strip(' %'))
             yield nagiosplugin.Metric('gpuutil', gpuUtilization, '%')
-            
-            memUtilization = float(utilization.find('memory_util').text.strip(' %'))
+            if self.fb_memory:
+                fb_mem = gpu.find('fb_memory_usage')
+                total_fb = float(fb_mem.find('total').text.strip(' MiB'))
+                used_fb = float(fb_mem.find('used').text.strip(' MiB'))
+                memUtilization = float("%.2f" % (used_fb / total_fb)) * 100
+            else:
+                memUtilization = float(utilization.find('memory_util').text.strip(' %'))
             yield nagiosplugin.Metric('memutil', memUtilization, '%')
-            
+
             temperature = gpu.find('temperature')
             gpuTemp = float(temperature.find('gpu_temp').text.strip(' C'))
             yield nagiosplugin.Metric('gpuTemp', gpuTemp, '')
@@ -33,24 +39,25 @@ def main():
                       help='warning if threshold is outside RANGE')
     argp.add_argument('-c', '--gpu_critical', metavar='RANGE', default=0,
                       help='critical if threshold is outside RANGE')
-    
+
     argp.add_argument('-W', '--mem_warning', metavar='RANGE', default=0,
                       help='warning if threshold is outside RANGE')
     argp.add_argument('-C', '--mem_critical', metavar='RANGE', default=0,
                       help='critical if threshold is outside RANGE')
- 
+
     argp.add_argument('-t', '--gputemp_warning', metavar='RANGE', default=0,
                       help='warning if threshold is outside RANGE')
     argp.add_argument('-T', '--gputemp_critical', metavar='RANGE', default=0,
                       help='critical if threshold is outside RANGE')
-    
+
     argp.add_argument('-d', '--device', default="0",
                       help='Device ID (starting from 0)')
-  
+
     argp.add_argument('-v', '--verbose', action='count', default=0,
                       help='increase verbosity (use up to 3 times)')
-
-    args=argp.parse_args()
+    argp.add_argument('-m', '--memory', action='store_true',
+                      help="Show memory used in % instead of utilization")
+    args = argp.parse_args()
 
     check = nagiosplugin.Check(
             Utilization(args),
