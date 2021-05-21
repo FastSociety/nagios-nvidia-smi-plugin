@@ -44,21 +44,41 @@ class Utilization(nagiosplugin.Resource):
 def main():
     argp = argparse.ArgumentParser(description='Nagios plugin to check Nvidia GPU status using nvidia-smi')
 
-    argp.add_argument('-w', '--gpu_warning', metavar='RANGE', default=0,
+    argp.add_argument('-g', '--gpu_warning', metavar='RANGE', default=0,
                       help='warning if threshold is outside RANGE')
-    argp.add_argument('-c', '--gpu_critical', metavar='RANGE', default=0,
+    argp.add_argument('-G', '--gpu_critical', metavar='RANGE', default=0,
                       help='critical if threshold is outside RANGE')
     
-    argp.add_argument('-W', '--mem_warning', metavar='RANGE', default=0,
+    argp.add_argument('-m', '--mem_warning', metavar='RANGE', default=0,
                       help='warning if threshold is outside RANGE')
-    argp.add_argument('-C', '--mem_critical', metavar='RANGE', default=0,
+    argp.add_argument('-M', '--mem_critical', metavar='RANGE', default=0,
                       help='critical if threshold is outside RANGE')
  
     argp.add_argument('-t', '--gputemp_warning', metavar='RANGE', default=0,
                       help='warning if threshold is outside RANGE')
     argp.add_argument('-T', '--gputemp_critical', metavar='RANGE', default=0,
                       help='critical if threshold is outside RANGE')
-    
+
+    argp.add_argument('-f', '--fan_speed_warning', metavar='RANGE', default=0,
+                      help='warning if threshold is outside RANGE')
+    argp.add_argument('-F', '--fan_speed_critical', metavar='RANGE', default=0,
+                      help='critical if threshold is outside RANGE')
+
+    argp.add_argument('-l', '--link_widths_warning', metavar='RANGE', default=0,
+                      help='warning if threshold is outside RANGE')
+    argp.add_argument('-L', '--link_widths_critical', metavar='RANGE', default=0,
+                      help='critical if threshold is outside RANGE')
+
+    argp.add_argument('-sb', '--ecc_single_bit_warning', metavar='RANGE', default=0,
+                      help='warning if threshold is outside RANGE')
+    argp.add_argument('-SB', '--ecc_single_bit_critical', metavar='RANGE', default=0,
+                      help='critical if threshold is outside RANGE')
+
+    argp.add_argument('-db', '--ecc_double_bit_warning', metavar='RANGE', default=0,
+                      help='warning if threshold is outside RANGE')
+    argp.add_argument('-DB', '--ecc_double_bit_critical', metavar='RANGE', default=0,
+                      help='critical if threshold is outside RANGE')
+
     argp.add_argument('-d', '--device', default="0",
                       help='Device ID (starting from 0)')
   
