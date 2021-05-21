@@ -25,25 +25,60 @@ class Utilization(nagiosplugin.Resource):
             gpuTemp = float(temperature.find('gpu_temp').text.strip(' C'))
             yield nagiosplugin.Metric('gpuTemp', gpuTemp, '')
 
+            fan_speed = float(gpu.find('fan_speed').text.strip(' %'))
+            yield nagiosplugin.Metric('fan_speed', fan_speed, '')
+
+            link_widths = gpu.find('link_widths')
+            current_link_width = float(link_widths.find('current_link_width').text.strip(''))
+            yield nagiosplugin.Metric('current_link_width', current_link_width, '')
+
+            single_bit = gpu.find('single_bit')
+            ecc_single_bit = float(single_bit.find('total').text.strip(''))
+            yield nagiosplugin.Metric('ecc_single_bit', ecc_single_bit, '')
+
+            double_bit = gpu.find('double_bit')
+            ecc_double_bit = float(double_bit.find('total').text.strip(''))
+            yield nagiosplugin.Metric('ecc_double_bit', ecc_double_bit, '')
+
 @nagiosplugin.guarded
 def main():
     argp = argparse.ArgumentParser(description='Nagios plugin to check Nvidia GPU status using nvidia-smi')
 
-    argp.add_argument('-w', '--gpu_warning', metavar='RANGE', default=0,
+    argp.add_argument('-g', '--gpu_warning', metavar='RANGE', default=0,
                       help='warning if threshold is outside RANGE')
-    argp.add_argument('-c', '--gpu_critical', metavar='RANGE', default=0,
+    argp.add_argument('-G', '--gpu_critical', metavar='RANGE', default=0,
                       help='critical if threshold is outside RANGE')
     
-    argp.add_argument('-W', '--mem_warning', metavar='RANGE', default=0,
+    argp.add_argument('-m', '--mem_warning', metavar='RANGE', default=0,
                       help='warning if threshold is outside RANGE')
-    argp.add_argument('-C', '--mem_critical', metavar='RANGE', default=0,
+    argp.add_argument('-M', '--mem_critical', metavar='RANGE', default=0,
                       help='critical if threshold is outside RANGE')
  
     argp.add_argument('-t', '--gputemp_warning', metavar='RANGE', default=0,
                       help='warning if threshold is outside RANGE')
     argp.add_argument('-T', '--gputemp_critical', metavar='RANGE', default=0,
                       help='critical if threshold is outside RANGE')
-    
+
+    argp.add_argument('-f', '--fan_speed_warning', metavar='RANGE', default=0,
+                      help='warning if threshold is outside RANGE')
+    argp.add_argument('-F', '--fan_speed_critical', metavar='RANGE', default=0,
+                      help='critical if threshold is outside RANGE')
+
+    argp.add_argument('-l', '--link_widths_warning', metavar='RANGE', default=0,
+                      help='warning if threshold is outside RANGE')
+    argp.add_argument('-L', '--link_widths_critical', metavar='RANGE', default=0,
+                      help='critical if threshold is outside RANGE')
+
+    argp.add_argument('-sb', '--ecc_single_bit_warning', metavar='RANGE', default=0,
+                      help='warning if threshold is outside RANGE')
+    argp.add_argument('-SB', '--ecc_single_bit_critical', metavar='RANGE', default=0,
+                      help='critical if threshold is outside RANGE')
+
+    argp.add_argument('-db', '--ecc_double_bit_warning', metavar='RANGE', default=0,
+                      help='warning if threshold is outside RANGE')
+    argp.add_argument('-DB', '--ecc_double_bit_critical', metavar='RANGE', default=0,
+                      help='critical if threshold is outside RANGE')
+
     argp.add_argument('-d', '--device', default="0",
                       help='Device ID (starting from 0)')
   
@@ -56,7 +91,11 @@ def main():
             Utilization(args),
             nagiosplugin.ScalarContext('gpuutil', args.gpu_warning, args.gpu_critical),
             nagiosplugin.ScalarContext('memutil', args.mem_warning, args.mem_critical),
-            nagiosplugin.ScalarContext('gpuTemp', args.gputemp_warning, args.gputemp_critical)
+            nagiosplugin.ScalarContext('gpuTemp', args.gputemp_warning, args.gputemp_critical),
+            nagiosplugin.ScalarContext('fan_speed', args.fan_speed_warning, args.fan_speed_critical),
+            nagiosplugin.ScalarContext('current_link_width', args.link_width_warning, args.link_width_critical),
+            nagiosplugin.ScalarContext('ecc_single_bit', args.ecc_single_bit_warning, args.ecc_single_bit_critical),
+            nagiosplugin.ScalarContext('ecc_double_bit', args.ecc_double_warning, args.ecc_double_critical)
             )
     check.main(verbose=args.verbose)
 
