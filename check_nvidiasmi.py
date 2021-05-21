@@ -25,6 +25,21 @@ class Utilization(nagiosplugin.Resource):
             gpuTemp = float(temperature.find('gpu_temp').text.strip(' C'))
             yield nagiosplugin.Metric('gpuTemp', gpuTemp, '')
 
+            fan_speed = float(gpu.find('fan_speed').text.strip(' %'))
+            yield nagiosplugin.Metric('fan_speed', fan_speed, '')
+
+            link_widths = gpu.find('link_widths')
+            current_link_width = float(link_widths.find('current_link_width').text.strip(''))
+            yield nagiosplugin.Metric('current_link_width', current_link_width, '')
+
+            single_bit = gpu.find('single_bit')
+            ecc_single_bit = float(single_bit.find('total').text.strip(''))
+            yield nagiosplugin.Metric('ecc_single_bit', ecc_single_bit, '')
+
+            double_bit = gpu.find('double_bit')
+            ecc_double_bit = float(double_bit.find('total').text.strip(''))
+            yield nagiosplugin.Metric('ecc_double_bit', ecc_double_bit, '')
+
 @nagiosplugin.guarded
 def main():
     argp = argparse.ArgumentParser(description='Nagios plugin to check Nvidia GPU status using nvidia-smi')
@@ -56,7 +71,11 @@ def main():
             Utilization(args),
             nagiosplugin.ScalarContext('gpuutil', args.gpu_warning, args.gpu_critical),
             nagiosplugin.ScalarContext('memutil', args.mem_warning, args.mem_critical),
-            nagiosplugin.ScalarContext('gpuTemp', args.gputemp_warning, args.gputemp_critical)
+            nagiosplugin.ScalarContext('gpuTemp', args.gputemp_warning, args.gputemp_critical),
+            nagiosplugin.ScalarContext('fan_speed', args.fan_speed_warning, args.fan_speed_critical),
+            nagiosplugin.ScalarContext('current_link_width', args.link_width_warning, args.link_width_critical),
+            nagiosplugin.ScalarContext('ecc_single_bit', args.ecc_single_bit_warning, args.ecc_single_bit_critical),
+            nagiosplugin.ScalarContext('ecc_double_bit', args.ecc_double_warning, args.ecc_double_critical)
             )
     check.main(verbose=args.verbose)
 
