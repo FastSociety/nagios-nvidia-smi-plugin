@@ -43,6 +43,7 @@ class Utilization(nagiosplugin.Resource):
             temperature = gpu.find("temperature")
             gpuTemp = float(temperature.find("gpu_temp").text.strip(" C"))
             yield nagiosplugin.Metric(f"gpuTemp{count}", gpuTemp, "")
+            count += 1
 
 
 @nagiosplugin.guarded
