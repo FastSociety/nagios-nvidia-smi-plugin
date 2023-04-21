@@ -13,22 +13,31 @@ class Utilization(nagiosplugin.Resource):
         self.nvidia_smi_xml_root = xml.etree.ElementTree.fromstring(nvidia_smi_proc_out)
 
     def probe(self):
+        count = 0
+        
+        yield nagiosplugin.Metric("gpucount", int(gpu.find("attached_gpus").text), '')
+        
         for gpu in self.nvidia_smi_xml_root.iter('gpu'):
             utilization = gpu.find('utilization')
             gpuUtilization = float(utilization.find('gpu_util').text.strip(' %'))
-            yield nagiosplugin.Metric('gpuutil', gpuUtilization, '%')
+            yield nagiosplugin.Metric(f"gpuutil{count}", gpuUtilization, '%')
             
             memUtilization = float(utilization.find('memory_util').text.strip(' %'))
-            yield nagiosplugin.Metric('memutil', memUtilization, '%')
+            yield nagiosplugin.Metric(f"memutil{count}", memUtilization, '%')
             
             temperature = gpu.find('temperature')
             gpuTemp = float(temperature.find('gpu_temp').text.strip(' C'))
-            yield nagiosplugin.Metric('gpuTemp', gpuTemp, '')
+            yield nagiosplugin.Metric(f"gpuTemp{count}", gpuTemp, '')
 
 @nagiosplugin.guarded
 def main():
     argp = argparse.ArgumentParser(description='Nagios plugin to check Nvidia GPU status using nvidia-smi')
 
+    argp.add_argument('--count_warning', metavar='RANGE', default=0,
+                      help='warning if threshold is outside RANGE')
+    argp.add_argument('--count_critical', metavar='RANGE', default=0,
+                      help='critical if threshold is outside RANGE')
+    
     argp.add_argument('-w', '--gpu_warning', metavar='RANGE', default=0,
                       help='warning if threshold is outside RANGE')
     argp.add_argument('-c', '--gpu_critical', metavar='RANGE', default=0,
@@ -54,6 +63,7 @@ def main():
 
     check = nagiosplugin.Check(
             Utilization(args),
+            nagiosplugin.ScalarContext('gpucount', args.count_warning, args.count_critical),
             nagiosplugin.ScalarContext('gpuutil', args.gpu_warning, args.gpu_critical),
             nagiosplugin.ScalarContext('memutil', args.mem_warning, args.mem_critical),
             nagiosplugin.ScalarContext('gpuTemp', args.gputemp_warning, args.gputemp_critical)
