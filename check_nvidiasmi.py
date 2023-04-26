@@ -35,14 +35,14 @@ class Utilization(nagiosplugin.Resource):
         for gpu in self.nvidia_smi_xml_root.iter("gpu"):
             utilization = gpu.find("utilization")
             gpuUtilization = float(utilization.find("gpu_util").text.strip(" %"))
-            yield nagiosplugin.Metric(f"gpuutil{count}", gpuUtilization, "%")
+            yield nagiosplugin.Metric(f"gpuutil{count}", gpuUtilization, "%", context="gpuutil")
 
             memUtilization = float(utilization.find("memory_util").text.strip(" %"))
-            yield nagiosplugin.Metric(f"memutil{count}", memUtilization, "%")
+            yield nagiosplugin.Metric(f"memutil{count}", memUtilization, "%", context="memutil")
 
             temperature = gpu.find("temperature")
             gpuTemp = float(temperature.find("gpu_temp").text.strip(" C"))
-            yield nagiosplugin.Metric(f"gpuTemp{count}", gpuTemp, "")
+            yield nagiosplugin.Metric(f"gpuTemp{count}", gpuTemp, "", context="gpuTemp")
             count += 1
 
 
