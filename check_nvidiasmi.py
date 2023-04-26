@@ -24,8 +24,9 @@ class Utilization(nagiosplugin.Resource):
         if self.nvidia_smi_xml_root is None:
             raise Exception("Failed to decode nvidia-smi output")
 
-        # Add suffic to GPU specific metrics to allow for proper multi-gpu support
+        # Add suffix to GPU specific metrics to allow for proper multi GPU support
         # Otherwise only the metrics of the last GPU will be reported 
+        # This associated with the Metrics in the check init by `context`
         count = 0
 
         yield nagiosplugin.Metric(
