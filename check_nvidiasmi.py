@@ -25,6 +25,10 @@ class Utilization(nagiosplugin.Resource):
             gpuTemp = float(temperature.find('gpu_temp').text.strip(' C'))
             yield nagiosplugin.Metric('gpuTemp', gpuTemp, '')
 
+            power = gpu.find('gpu_power_readings')
+            gpuPower = float(power.find('power_draw').text.strip(' W'))
+            yield nagiosplugin.Metric('gpuPower', gpuPower, '')
+
 @nagiosplugin.guarded
 def main():
     argp = argparse.ArgumentParser(description='Nagios plugin to check Nvidia GPU status using nvidia-smi')
@@ -43,20 +47,25 @@ def main():
                       help='warning if threshold is outside RANGE')
     argp.add_argument('-T', '--gputemp_critical', metavar='RANGE', default=0,
                       help='critical if threshold is outside RANGE')
+    argp.add_argument('-p', '--gpupower_warning', metavar='RANGE', default=0,
+                       help='warning if threshold is outside RANGE')
+    argp.add_argument('-P', '--gpupower_critical', metavar='RANGE', default=0,
+                       help='warning if threshold is outside RANGE')
     
     argp.add_argument('-d', '--device', default="0",
                       help='Device ID (starting from 0)')
   
     argp.add_argument('-v', '--verbose', action='count', default=0,
                       help='increase verbosity (use up to 3 times)')
-
+    
     args=argp.parse_args()
 
     check = nagiosplugin.Check(
             Utilization(args),
             nagiosplugin.ScalarContext('gpuutil', args.gpu_warning, args.gpu_critical),
             nagiosplugin.ScalarContext('memutil', args.mem_warning, args.mem_critical),
-            nagiosplugin.ScalarContext('gpuTemp', args.gputemp_warning, args.gputemp_critical)
+            nagiosplugin.ScalarContext('gpuTemp', args.gputemp_warning, args.gputemp_critical),
+            nagiosplugin.ScalarContext('gpuPower', args.gpupower_warning, args.gpupower_critical)
             )
     check.main(verbose=args.verbose)
 
